@@ -6,10 +6,14 @@ from classes.consts import FilterSize as fs
 class Filter:
     # for sake of simplicity we
     def __init__(self) -> None:
-        self.channels = fs.C
-        self.r = fs.R
-        self.s = fs.S
+        self.channels: int = fs.C
+        self.r: int = fs.R
+        self.s: int = fs.S
+        self.bias: float = np.random.rand()
         self.kernel = np.random.rand(self.channels, self.r, self.s)
+
+    def get_bias(self) -> float:
+        return self.bias
 
     def __str__(self) -> str:
         output = []

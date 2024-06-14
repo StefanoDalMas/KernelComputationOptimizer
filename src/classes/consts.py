@@ -6,6 +6,7 @@ class FilterSize:
 
 
 class InputFmapSize:
+    N: int = 2
     C: int = 3
     H: int = 5
     W: int = 5

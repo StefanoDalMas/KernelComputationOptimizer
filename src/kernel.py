@@ -1,7 +1,9 @@
-from typing import List
-from classes.FeatureMap import FeatureMap
+from typing import List, Any, Dict
+import numpy as np
+from classes.InputFeatureMap import InputFeatureMap
 from classes.filter import Filter
-from classes.consts import FilterSize as fs, InputFmapSize as ifs
+from classes.consts import FilterSize as fs, InputFmapSize as ifs, U as stride
+from collections import defaultdict
 
 # here we would like to create an example of kernel computation
 
@@ -15,19 +17,36 @@ from classes.consts import FilterSize as fs, InputFmapSize as ifs
 # we are going to have N outputs, each one with M channels and P x Q size
 
 
-# initialize the filters
+# initialize the M filters
 
-filters: List[Filter] = []
+filters: Dict[int, Filter] = defaultdict(Filter)
 for m in range(fs.M):
-    filters.append(Filter())
+    filters[m] = Filter()
 
+# each filter has a bias, so for now we simply map it with a dict to quickly access it
+biases: Dict[int, float] = defaultdict(float)
 for m in range(fs.M):
-    print(f"Filter {m}\n", filters[m])
+    biases[m] = filters[m].get_bias()
+    print(f"Filter {m} bias: {biases[m]}")
+
+for k, filter in filters.items():
+    print(f"Filter {k}\n", filter)
+
+# we initialize the N fmaps with random values
+inputFmaps: List[InputFeatureMap] = []
+for n in range(ifs.N):
+    inputFmaps.append(InputFeatureMap())
+
+for n in range(ifs.N):
+    print("Input Feature Map\n", inputFmaps[n])
+
+# now we need to perform the convolution, we need the sizes P and Q
+P = (ifs.H - fs.R) // stride + 1
+Q = (ifs.W - fs.S) // stride + 1
+outputFmaps: List[Any] = []
+# initialize the output fmaps with zeroes using np.zeros
+for n in range(ifs.N):
+    outputFmaps.append(np.zeros((fs.M, P, Q)))
 
 
-inputFmaps: List[FeatureMap] = []
-for c in range(ifs.C):
-    inputFmaps.append(FeatureMap())
-
-for c in range(ifs.C):
-    print("Input Feature Map\n", inputFmaps[c])
+# now we can start the convolution
