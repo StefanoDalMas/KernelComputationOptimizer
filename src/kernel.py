@@ -2,8 +2,14 @@ from typing import List, Any, Dict
 import numpy as np
 from classes.InputFeatureMap import InputFeatureMap
 from classes.filter import Filter
-from classes.consts import FilterSize as fs, InputFmapSize as ifs, U as stride
+from classes.consts import (
+    FilterSize as fs,
+    InputFmapSize as ifs,
+    OutputFmapSize as ofs,
+    U as stride,
+)
 from collections import defaultdict
+from tools.convolution import convolution, flattened_convolution
 
 # here we would like to create an example of kernel computation
 
@@ -22,6 +28,7 @@ from collections import defaultdict
 filters: Dict[int, Filter] = defaultdict(Filter)
 for m in range(fs.M):
     filters[m] = Filter()
+
 
 # each filter has a bias, so for now we simply map it with a dict to quickly access it
 biases: Dict[int, float] = defaultdict(float)
@@ -48,5 +55,31 @@ outputFmaps: List[Any] = []
 for n in range(ifs.N):
     outputFmaps.append(np.zeros((fs.M, P, Q)))
 
+outputFmaps = convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
 
-# now we can start the convolution
+# Print output feature maps
+for n in range(ofs.N):
+    for m in range(fs.M):
+        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
+        for i in range(P):
+            row = " ".join(f"{outputFmaps[n][m][i][j]:.2f}" for j in range(Q))
+            print(row)
+
+
+# now we try with the flattened filters and input fmaps
+flattened_filters = np.array([filter.kernel.flatten() for filter in filters.values()])
+flattened_input_fmaps = np.array([inputFmap.fmap.flatten() for inputFmap in inputFmaps])
+
+outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+
+outputFmapsWithFlattened = flattened_convolution(
+    outputFmaps, flattened_input_fmaps, flattened_filters, biases, P, Q
+)
+
+# Print output feature maps
+for n in range(ofs.N):
+    for m in range(fs.M):
+        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
+        for i in range(P):
+            row = " ".join(f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q))
+            print(row)
