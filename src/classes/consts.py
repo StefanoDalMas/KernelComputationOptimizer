@@ -21,3 +21,16 @@ class OutputFmapSize:
 
 # U is the stride
 U: int = 2
+
+
+class MemoryModel:
+    VOLATILE_MEMORY_SIZE: int = 256 * 1024
+    VOLATILE_READ: float = 100
+    VOLATILE_WRITE: float = 100
+    NONVOLATILE_MEMORY_SIZE: int = float("inf")
+    NONVOLATILE_READ: float = 250
+    NONVOLATILE_WRITE: float = 250
+
+class UnitModel:
+    SIZE_OF_INT: int = 4
+    SIZE_OF_FLOAT: int = 8

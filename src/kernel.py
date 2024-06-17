@@ -1,6 +1,7 @@
 from typing import List, Any, Dict
 import numpy as np
 from classes.InputFeatureMap import InputFeatureMap
+from classes.memoryModel import Memory
 from classes.filter import Filter
 from classes.consts import (
     FilterSize as fs,
@@ -9,6 +10,7 @@ from classes.consts import (
     U as stride,
 )
 from collections import defaultdict
+from functools import partial
 from tools.convolution import convolution, flattened_convolution
 
 # here we would like to create an example of kernel computation
@@ -81,5 +83,28 @@ for n in range(ofs.N):
     for m in range(fs.M):
         print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
         for i in range(P):
-            row = " ".join(f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q))
+            row = " ".join(
+                f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
+            )
+            print(row)
+
+
+# now we can monitor the energy costs of the convolution operation
+volatile_memory = Memory("volatile")
+nonvolatile_memory = Memory("nonvolatile")
+outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+nonvolatile_memory.load(filters)
+nonvolatile_memory.load(biases)
+nonvolatile_memory.load(inputFmaps)
+nonvolatile_memory.load(outputFmaps)
+nonvolatile_memory.monitor_convolution(convolution, outputFmaps, inputFmaps, filters, biases, P, Q)
+
+# Print output feature maps
+for n in range(ofs.N):
+    for m in range(fs.M):
+        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
+        for i in range(P):
+            row = " ".join(
+                f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
+            )
             print(row)
