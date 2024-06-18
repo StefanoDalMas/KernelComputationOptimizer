@@ -147,6 +147,12 @@ class Memory:
                             self.write()  # Track the memory write operation as store
 
             return outputFmaps
+        # we have 
+        #   for the bias load 1 R and 1 W => NMPQ * (1R+1W)
+        #   for the inner loop 3 R and 1 W => NMPQ * R * S * C * (3R+1W) 
+        #   for the activation function 1 R and 1 W => NMPQ * (1R+1W)
+        # the total cost would be 2 * NMPQ * Read + 2 * NMPQ * Write + 3 * NMPQ * R * S * C  * Read + NMPQ * R * S * C * Write
+        
         
         result = monitored_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
         total_energy_cost = self.get_total_energy_cost()
@@ -156,6 +162,7 @@ class Memory:
         )
         print(f"Total energy cost of the convolution operation: {total_energy_cost}")
         return result
+    
 
 
 if __name__ == "main":
