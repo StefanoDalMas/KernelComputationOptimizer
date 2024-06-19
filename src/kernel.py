@@ -89,16 +89,16 @@ for n in range(ofs.N):
 
 
 # testing loading into Volatile Memory
-volatile_memory = Memory("volatile")
+memory = Memory()
 outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-volatile_memory.load(filters)
-volatile_memory.load(biases)
-volatile_memory.load(inputFmaps)
-volatile_memory.load(outputFmaps)
+memory.alloc(filters)
+memory.free(filters)
+# memory.alloc(biases)
+# memory.alloc(inputFmaps)
+# memory.alloc(outputFmaps)
 
-# Testing Nonvolatile Memory costs
-nonvolatile_memory = Memory("nonvolatile")
-nonvolatile_memory.monitor_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
+# # Testing Nonvolatile Memory costs
+memory.monitor_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
 
 # Print output feature maps
 for n in range(ofs.N):
