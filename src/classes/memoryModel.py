@@ -29,13 +29,13 @@ class Memory:
         self.nonvolatile_allocator: List[Any] = []
         
 
-    def read(self, volatile: bool = True) -> None:
+    def read(self, volatile: bool = False) -> None:
         if volatile:
             self.volatile_reads += 1
         else:
             self.nonvolatile_reads += 1
 
-    def write(self, volatile: bool = True) -> None:
+    def write(self, volatile: bool = False) -> None:
         if volatile:
             self.volatile_writes += 1
         else:
@@ -165,6 +165,27 @@ class Memory:
             self.nonvolatile_allocator.remove(data)
         self.update_memory_usage(data, adding=False, volatile=volatile)
 
+    def check_if_volatile(self, data: Union[np.ndarray, List, Dict, Filter, InputFeatureMap]) -> bool:
+        def compare_data(item, data):
+            if isinstance(item, np.ndarray) and isinstance(data, np.ndarray):
+                return np.array_equal(item, data)
+            elif isinstance(item, list) and isinstance(data, list):
+                return all(compare_data(i, d) for i, d in zip(item, data)) and len(item) == len(data)
+            elif isinstance(item, dict) and isinstance(data, dict):
+                return all(key in item and compare_data(item[key], data[key]) for key in data) and len(item) == len(data)
+            elif isinstance(item, Filter) and isinstance(data, Filter):
+                return compare_data(item.kernel, data.kernel)
+            elif isinstance(item, InputFeatureMap) and isinstance(data, InputFeatureMap):
+                return compare_data(item.fmap, data.fmap)
+            else:
+                return item == data
+
+        for item in self.volatile_allocator:
+            if type(data) == type(item):
+                if compare_data(item, data):
+                    return True
+        return False
+
     def get_volatile_memory_accesses(self) -> int:
         return self.volatile_reads + self.volatile_writes
     
@@ -187,38 +208,39 @@ class Memory:
         self.reset()  # Reset the operation counters before starting the convolution
 
         # Define the monitored convolution function
-        def monitored_convolution(outputFmaps: List[Any], inputFmaps: List[InputFeatureMap], filters: Dict[int, Filter], biases: Dict[int, float], P: int, Q: int) -> None:
+        def monitored_convolution(outputFmaps: List[Any], inputFmaps: List[InputFeatureMap], filters: Dict[int, Filter], biases: Dict[int, float], P: int, Q: int, 
+                                volatile_filters : bool , volatile_input_fmap : bool, volatile_biases : bool, volatile_output_fmap : bool) -> None:
             for n in range(ifs.N):
                 for m in range(fs.M):
                     for x in range(P):
                         for y in range(Q):
                             # Load the bias value for the current filter
                             output_value = biases[m]  # No additional load/store
-                            self.read()  # Track the memory read operation
-                            self.write()
+                            self.read(volatile = volatile_biases)  # Track the memory read operation
+                            self.write(volatile = volatile_biases)
                             # Perform the convolution operation
                             for i in range(fs.R):
                                 for j in range(fs.S):
                                     for k in range(fs.C):
                                         # Load the input feature map value
                                         input_value = inputFmaps[n].fmap[k][x * stride + i][y * stride + j]
-                                        self.read()  
+                                        self.read(volatile = volatile_input_fmap)  
                                         # Load the filter kernel value
                                         filter_value = filters[m].kernel[k][i][j]  # 1 load
-                                        self.read()  # Track the memory read operation
+                                        self.read(volatile = volatile_filters)  # Track the memory read operation
                                         # Multiply input and filter values
                                         product = (input_value * filter_value)  # No additional load/store
                                         # Accumulate the result
                                         output_value += product  # 1 load (for output_value) + 1 store (for output_value)
-                                        self.read()  # Track the memory read operation
-                                        self.write()  # Track the memory write operation
+                                        self.read(volatile = volatile_output_fmap)  # read output value from memory
+                                        self.write(volatile = volatile_output_fmap)  # update output value to memory
 
                             # Apply activation function (ReLU)
-                            self.read() # we have to read the output value
+                            self.read(volatile= volatile_output_fmap) # we have to read the output value
                             if output_value < 0:
                                 output_value = 0
                             outputFmaps[n][m][x][y] = output_value 
-                            self.write()  # Track the memory write operation as store
+                            self.write(volatile=volatile_output_fmap)  # Track the memory write operation as store
 
             return outputFmaps
         # we have 
@@ -226,12 +248,19 @@ class Memory:
         #   for the inner loop 3 R and 1 W => NMPQ * R * S * C * (3R+1W) 
         #   for the activation function 1 R and 1 W => NMPQ * (1R+1W)
         # the total cost would be 2 * NMPQ * Read + 2 * NMPQ * Write + 3 * NMPQ * R * S * C  * Read + NMPQ * R * S * C * Write
-
-        result = monitored_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
+        volatile_biases = self.check_if_volatile(biases)
+        volatile_filters = self.check_if_volatile(filters)
+        volatile_input_fmap = self.check_if_volatile(inputFmaps)
+        volatile_output_fmap = True # for now we assume to always save everything into Volatile!
+        result = monitored_convolution(outputFmaps, inputFmaps, filters, biases, P, Q, volatile_filters, volatile_input_fmap, volatile_biases,volatile_output_fmap)
+        volatile_energy_cost = self.get_volatile_energy_cost()
+        nonvolatile_energy_cost = self.get_nonvolatile_energy_cost()
+        volatile_memory_accesses = self.get_volatile_memory_accesses()
+        nonvolatile_memory_accesses = self.get_nonvolatile_memory_accesses()
         total_energy_cost = self.get_total_energy_cost()
         total_memory_accesses = self.get_total_memory_accesses()
-        print(f"Total memory accesses during the convolution operation: {total_memory_accesses}")
-        print(f"Total energy cost of the convolution operation: {total_energy_cost}")
+        print("Total energy cost: ", total_energy_cost, " In volatile : ", volatile_energy_cost, " In non-volatile : ", nonvolatile_energy_cost)
+        print("Total memory accesses: ", total_memory_accesses, " In volatile : ", volatile_memory_accesses, " In non-volatile : ", nonvolatile_memory_accesses)
         return result
 
 

@@ -91,11 +91,10 @@ for n in range(ofs.N):
 # testing loading into Volatile Memory
 memory = Memory()
 outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.alloc(filters)
-memory.free(filters)
-# memory.alloc(biases)
-# memory.alloc(inputFmaps)
-# memory.alloc(outputFmaps)
+memory.alloc(filters, volatile=True)
+memory.alloc(biases, volatile=True)
+memory.alloc(inputFmaps, volatile=True)
+memory.alloc(outputFmaps, volatile = True) # not necessary to state true, it is hardcoded in the monitorConvolution function!!!!
 
 # # Testing Nonvolatile Memory costs
 memory.monitor_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
