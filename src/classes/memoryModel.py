@@ -3,7 +3,7 @@ from classes.filter import Filter
 from classes.InputFeatureMap import InputFeatureMap
 from typing import List, Dict, Any, Union
 import numpy as np
-from classes.consts import FilterSize as fs, InputFmapSize as ifs, OutputFmapSize as ofs, U as stride
+from classes.consts import FilterSize as fs, InputFmapSize as ifs, OutputFmapSize as ofs, U as stride, EnergyModel as em
 
 
 class Memory:
@@ -203,9 +203,30 @@ class Memory:
 
     def get_total_energy_cost(self) -> float:
         return self.get_volatile_energy_cost() + self.get_nonvolatile_energy_cost()
+    
+    def checkpoint(self) -> None:
+        # Power failure policy : If it happens, save the volatile memory to non-volatile memory and restore it back
+        # generate a random number, if it is less than 0.3, we perform a power failure
+        if np.random.rand() < em.POWER_FAILURE_PROBABILITY:
+            # Create a backup of the volatile allocator
+            backup_volatile_allocator = list(self.volatile_allocator)
+
+            for data in backup_volatile_allocator:
+                self.free(data, volatile=True)
+            
+            # Write the backup data to non-volatile memory and then read it back
+            for data in backup_volatile_allocator:
+                self.write(volatile=False)  # Writing to non-volatile memory
+                self.read(volatile=False)   # Reading from non-volatile memory
+                
+                # Re-allocate the data back to volatile memory
+                
+                self.alloc(data, volatile=True)
+            print("Power failure occurred. Data has been restored from non-volatile memory.")
+
 
     def monitor_convolution(self, outputFmaps: List[Any], inputFmaps: List[InputFeatureMap], filters: Dict[int, Filter], biases: Dict[int, float], P: int, Q: int) -> None:
-        self.reset()  # Reset the operation counters before starting the convolution
+        # self.reset()  # Reset the operation counters before starting the convolution    
 
         # Define the monitored convolution function
         def monitored_convolution(outputFmaps: List[Any], inputFmaps: List[InputFeatureMap], filters: Dict[int, Filter], biases: Dict[int, float], P: int, Q: int, 
@@ -219,6 +240,7 @@ class Memory:
                             self.read(volatile = volatile_biases)  # Track the memory read operation
                             self.write(volatile = volatile_biases)
                             # Perform the convolution operation
+                            self.checkpoint()  # Check for power failure
                             for i in range(fs.R):
                                 for j in range(fs.S):
                                     for k in range(fs.C):

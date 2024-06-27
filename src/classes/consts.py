@@ -34,3 +34,6 @@ class MemoryModel:
 class UnitModel:
     SIZE_OF_INT: int = 4
     SIZE_OF_FLOAT: int = 8
+
+class EnergyModel:
+    POWER_FAILURE_PROBABILITY : int = 0.3
