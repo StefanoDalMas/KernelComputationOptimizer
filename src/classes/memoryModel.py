@@ -280,7 +280,7 @@ class Memory:
     def power_failure(self) -> None:
         # Power failure policy : If it happens, save the volatile memory to non-volatile memory and restore it back
         # generate a random number, if it is less than 0.3, we perform a power failure
-        if np.random.rand() < 0:
+        if np.random.rand() < em.POWER_FAILURE_PROBABILITY:
             # Create a backup of the volatile allocator
             self.checkpoint()
 
@@ -480,8 +480,8 @@ class Memory:
             channel: int,
         ) -> None:
             # Bring the filter and corresponding input fmap into volatile memory
-            self.alloc(filters[m].kernel[k][channel, :], volatile=True) # number of : is fs.M - 1
-            self.alloc(inputFmaps[n].fmap[k][channel, :], volatile=True)
+            self.alloc(filters[m].kernel[k], volatile=True) # number of : is fs.M - 1
+            self.alloc(inputFmaps[n].fmap[k], volatile=True)
 
             for x in range(P):
                 for y in range(Q):
@@ -522,8 +522,8 @@ class Memory:
             self.write(volatile=False)
 
             # Free the filter and input fmap from volatile memory
-            self.free(filters[m].kernel[k][channel, :], volatile=True)
-            self.free(inputFmaps[n].fmap[k][channel, :], volatile=True)
+            self.free(filters[m].kernel[k], volatile=True)
+            self.free(inputFmaps[n].fmap[k], volatile=True)
 
             return outputFmaps
 
