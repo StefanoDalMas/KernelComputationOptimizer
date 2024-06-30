@@ -90,14 +90,28 @@ for n in range(ofs.N):
 
 # testing loading into Volatile Memory
 memory = Memory()
-outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.alloc(filters, volatile=True)
-memory.alloc(biases, volatile=True)
-memory.alloc(inputFmaps, volatile=True)
-memory.alloc(outputFmaps, volatile = True) # not necessary to state true, it is hardcoded in the monitorConvolution function!!!!
+# outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+# memory.alloc(filters, volatile=True)
+# memory.alloc(biases, volatile=True)
+# memory.alloc(inputFmaps, volatile=True)
+# memory.alloc(outputFmaps, volatile = True) # not necessary to state true, it is hardcoded in the monitorConvolution function!!!!
 
-# # Testing Nonvolatile Memory costs
-memory.monitor_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
+# # # Testing Nonvolatile Memory costs
+# memory.monitor_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
+
+# # Print output feature maps
+# for n in range(ofs.N):
+#     for m in range(fs.M):
+#         print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
+#         for i in range(P):
+#             row = " ".join(
+#                 f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
+#             )
+#             print(row)
+
+
+outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q)
 
 # Print output feature maps
 for n in range(ofs.N):
