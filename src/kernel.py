@@ -11,42 +11,27 @@ from classes.consts import (
 )
 from collections import defaultdict
 from tools.convolution import convolution, flattened_convolution
-
-# here we would like to create an example of kernel computation
-
-# FILTERS:
-# we are going to have M filters, each one with C channels and R x S kernel size
-
-# INPUT FMAP:
-# we are going to have C channels and H x W size
-
-# OUTPUT FMAP:
-# we are going to have N outputs, each one with M channels and P x Q size
+from tools.generate_data import generate_data
+from tools.data_loader import data_loader
 
 
-# initialize the M filters
+# uncomment this one to generate new json files
+# generate_data()
 
-filters: Dict[int, Filter] = defaultdict(Filter)
-for m in range(fs.M):
-    filters[m] = Filter()
-
-
-# each filter has a bias, so for now we simply map it with a dict to quickly access it
-biases: Dict[int, float] = defaultdict(float)
-for m in range(fs.M):
-    biases[m] = filters[m].get_bias()
-    print(f"Filter {m} bias: {biases[m]}")
-
-for k, filter in filters.items():
-    print(f"Filter {k}\n", filter)
-
-# we initialize the N fmaps with random values
 inputFmaps: List[InputFeatureMap] = []
-for n in range(ifs.N):
-    inputFmaps.append(InputFeatureMap())
+biases: Dict[int, float] = defaultdict(float)
+filters: Dict[int, Filter] = defaultdict(Filter)
 
+filters, biases, inputFmaps = data_loader()
+for m in range(fs.M):
+    print(f"Filter {m + 1}:")
+    print(filters[m])
 for n in range(ifs.N):
-    print("Input Feature Map\n", inputFmaps[n])
+    print(f"Input Feature Map {n + 1}:")
+    print(inputFmaps[n])
+for m in range(fs.M):
+    print(f"Filter {m + 1} bias: {biases[m]:.2f}")
+
 
 # now we need to perform the convolution, we need the sizes P and Q
 P = (ifs.H - fs.R) // stride + 1
