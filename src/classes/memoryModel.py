@@ -216,8 +216,9 @@ class Memory:
         if volatile:
             if isinstance(data,np.ndarray):
                 for el in self.volatile_allocator:
-                    if np.array_equal(el,data):
+                    if isinstance(el, np.ndarray) and np.array_equal(el, data):
                         self.volatile_allocator.remove(el)
+                        break  # Break after removing to avoid modifying the list during iteration
             else:
                 self.volatile_allocator.remove(data)
         else:
@@ -540,6 +541,48 @@ class Memory:
                 return outputFmaps
             else:
                 print("Tiling being implemented!")
+                tiles = inputFmaps[n].perform_tiling(4, 3, channel)
+                print("here")
+                # now we convolve 1 tile with the kernel and save to outputFmaps
+                for tile in tiles:
+                    self.alloc(filters[m].kernel[k], volatile=True)
+                    self.alloc(tile, volatile=True)
+                    for x in range(P):
+                        for y in range(Q):
+                            output_value = biases[m]
+                            self.read(volatile=True)
+                            self.write(volatile=True)
+
+                            self.power_failure()
+
+                            for i in range(fs.R):
+                                for j in range(fs.S):
+                                    # Load the input feature map value
+                                    input_value = tile.fmap[i][j]
+                                    self.read(volatile=True)
+
+                                    # Load the filter kernel value
+                                    filter_value = filters[m].kernel[k][i][j]
+                                    self.read(volatile=True)
+
+                                    # Multiply input and filter values
+                                    product = input_value * filter_value
+
+                                    # Accumulate the result
+                                    output_value += product
+                                    self.read(volatile=True)
+                                    self.write(volatile=True)
+
+                            # Apply activation function (ReLU)
+                            self.read(volatile=True)
+                            if output_value < 0:
+                                output_value = 0
+                            outputFmaps[n][m][x][y] = output_value
+                            self.write(volatile=True)
+                    self.free(filters[m].kernel[k], volatile=True)
+                    self.free(tile, volatile=True)
+                return outputFmaps
+
 
         result = monitored_convolution(
             outputFmaps, inputFmaps, filters, biases, P, Q, n, m, k, channel, tiling

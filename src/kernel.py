@@ -109,8 +109,17 @@ for n in range(ofs.N):
             print(row)
 
 
-print(inputFmaps[0].fmap[0])
-tiles = inputFmaps[0].perform_tiling(4, 3, channel = 0)
-for tile in tiles:
-    print(tile.fmap)
-    print("\n")
+
+
+outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = True)
+
+# Print output feature maps
+for n in range(ofs.N):
+    for m in range(fs.M):
+        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
+        for i in range(P):
+            row = " ".join(
+                f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
+            )
+            print(row)
