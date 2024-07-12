@@ -107,3 +107,10 @@ for n in range(ofs.N):
                 f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
             )
             print(row)
+
+
+print(inputFmaps[0].fmap[0])
+tiles = inputFmaps[0].perform_tiling(4, 3, channel = 0)
+for tile in tiles:
+    print(tile.fmap)
+    print("\n")

@@ -8,8 +8,8 @@ class FilterSize:
 class InputFmapSize:
     N: int = 2
     C: int = 3
-    H: int = 5
-    W: int = 5
+    H: int = 6
+    W: int = 6
 
 
 class OutputFmapSize:
@@ -20,7 +20,7 @@ class OutputFmapSize:
 
 
 # U is the stride
-U: int = 2
+U: int = 3
 
 
 class MemoryModel:
