@@ -96,7 +96,7 @@ memory = Memory()
 
 
 outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q)
+memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = False)
 
 # Print output feature maps
 for n in range(ofs.N):

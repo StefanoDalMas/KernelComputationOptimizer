@@ -24,10 +24,10 @@ U: int = 3
 
 
 class MemoryModel:
-    VOLATILE_MEMORY_SIZE: int = 8 * 1024
+    VOLATILE_MEMORY_SIZE: int = 8 * 1024 # 8KB
     VOLATILE_READ: float = 100
     VOLATILE_WRITE: float = 100
-    NONVOLATILE_MEMORY_SIZE: int = 256 * 1024
+    NONVOLATILE_MEMORY_SIZE: int = 256 * 1024 # 256KB
     NONVOLATILE_READ: float = 250
     NONVOLATILE_WRITE: float = 250
 

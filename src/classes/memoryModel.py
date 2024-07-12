@@ -435,7 +435,11 @@ class Memory:
         biases: Dict[int, float],
         P: int,
         Q: int,
+        tiling : bool,
     ) -> None:
+        #wipe the content of the file
+        with open("data/benchmarks.txt", "w") as f:
+            f.close()
         for n in range(ifs.N):
             for m in range(fs.M):
                 # Perform the monitored convolution for each channel
@@ -452,7 +456,12 @@ class Memory:
                             m,
                             k,
                             channel,
+                            tiling,
                         )
+        # N is the number of input feature maps
+        # M is the number of output feature maps
+        # k is the input fmap considered
+        # channel is the channel of the input feature map
 
     def monitor_convolution_one_by_one(
         self,
@@ -466,6 +475,7 @@ class Memory:
         m: int,
         k: int,
         channel: int,
+        tiling : bool,
     ) -> None:
         def monitored_convolution(
             outputFmaps: List[Any],
@@ -478,57 +488,61 @@ class Memory:
             m: int,
             k: int,
             channel: int,
+            tiling : bool,
         ) -> None:
-            # Bring the filter and corresponding input fmap into volatile memory
-            self.alloc(filters[m].kernel[k], volatile=True) # number of : is fs.M - 1
-            self.alloc(inputFmaps[n].fmap[k], volatile=True)
+            if not tiling :
+                # Bring the filter and corresponding input fmap into volatile memory
+                self.alloc(filters[m].kernel[k], volatile=True) # number of : is fs.M - 1
+                self.alloc(inputFmaps[n].fmap[k], volatile=True)
 
-            for x in range(P):
-                for y in range(Q):
-                    output_value = biases[m]
-                    self.read(volatile=True)
-                    self.write(volatile=True)
+                for x in range(P):
+                    for y in range(Q):
+                        output_value = biases[m]
+                        self.read(volatile=True)
+                        self.write(volatile=True)
 
-                    self.power_failure()
+                        self.power_failure()
 
-                    for i in range(fs.R):
-                        for j in range(fs.S):
-                            # Load the input feature map value
-                            input_value = inputFmaps[n].fmap[k][x * stride + i][
-                                y * stride + j
-                            ]
-                            self.read(volatile=True)
+                        for i in range(fs.R):
+                            for j in range(fs.S):
+                                # Load the input feature map value
+                                input_value = inputFmaps[n].fmap[k][x * stride + i][
+                                    y * stride + j
+                                ]
+                                self.read(volatile=True)
 
-                            # Load the filter kernel value
-                            filter_value = filters[m].kernel[k][i][j]
-                            self.read(volatile=True)
+                                # Load the filter kernel value
+                                filter_value = filters[m].kernel[k][i][j]
+                                self.read(volatile=True)
 
-                            # Multiply input and filter values
-                            product = input_value * filter_value
+                                # Multiply input and filter values
+                                product = input_value * filter_value
 
-                            # Accumulate the result
-                            output_value += product
-                            self.read(volatile=True)
-                            self.write(volatile=True)
+                                # Accumulate the result
+                                output_value += product
+                                self.read(volatile=True)
+                                self.write(volatile=True)
 
-                    # Apply activation function (ReLU)
-                    self.read(volatile=True)
-                    if output_value < 0:
-                        output_value = 0
-                    outputFmaps[n][m][x][y] = output_value
-                    self.write(volatile=True)
+                        # Apply activation function (ReLU)
+                        self.read(volatile=True)
+                        if output_value < 0:
+                            output_value = 0
+                        outputFmaps[n][m][x][y] = output_value
+                        self.write(volatile=True)
 
-            # Save the output fmap in non-volatile memory
-            self.write(volatile=False)
+                # Save the output fmap in non-volatile memory
+                self.write(volatile=False)
 
-            # Free the filter and input fmap from volatile memory
-            self.free(filters[m].kernel[k], volatile=True)
-            self.free(inputFmaps[n].fmap[k], volatile=True)
+                # Free the filter and input fmap from volatile memory
+                self.free(filters[m].kernel[k], volatile=True)
+                self.free(inputFmaps[n].fmap[k], volatile=True)
 
-            return outputFmaps
+                return outputFmaps
+            else:
+                print("Tiling being implemented!")
 
         result = monitored_convolution(
-            outputFmaps, inputFmaps, filters, biases, P, Q, n, m, k, channel
+            outputFmaps, inputFmaps, filters, biases, P, Q, n, m, k, channel, tiling
         )
 
         volatile_energy_cost = self.get_volatile_energy_cost()
@@ -537,7 +551,16 @@ class Memory:
         nonvolatile_memory_accesses = self.get_nonvolatile_memory_accesses()
         total_energy_cost = self.get_total_energy_cost()
         total_memory_accesses = self.get_total_memory_accesses()
+        
 
+
+        with open("data/benchmarks.txt", "a") as f:
+            f.write("InputFmap #"+str(inputFmaps[n].id)+" Filter #"+str(filters[m].id)+" fmap #"+str(k)+" Channel # "+str(channel)+"\n")
+            f.write("Total energy cost: "+str(total_energy_cost)+" In volatile : "+str(volatile_energy_cost)+" In non-volatile : "+str(nonvolatile_energy_cost)+"\n")
+            f.write("Total memory accesses: "+str(total_memory_accesses)+" In volatile : "+str(volatile_memory_accesses)+" In non-volatile : "+str(nonvolatile_memory_accesses)+"\n")
+            f.write("\n")
+
+        print("InputFmap #",inputFmaps[n].id," Filter #", filters[m].id," Channel #",k)
         print(
             "Total energy cost: ",
             total_energy_cost,
