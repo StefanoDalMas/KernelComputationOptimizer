@@ -6,3 +6,4 @@ src/.DS_Store/
 **__pycache__/
 **/__init__.py
 data/benchmarks.txt
+data/bencharks_tiling.txt

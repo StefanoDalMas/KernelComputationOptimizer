@@ -439,7 +439,8 @@ class Memory:
         tiling : bool,
     ) -> None:
         #wipe the content of the file
-        with open("data/benchmarks.txt", "w") as f:
+        file = "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        with open(file, "w") as f:
             f.close()
         for n in range(ifs.N):
             for m in range(fs.M):
@@ -596,8 +597,8 @@ class Memory:
         total_memory_accesses = self.get_total_memory_accesses()
         
 
-
-        with open("data/benchmarks.txt", "a") as f:
+        file = "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        with open(file, "a") as f:
             f.write("InputFmap #"+str(inputFmaps[n].id)+" Filter #"+str(filters[m].id)+" fmap #"+str(k)+" Channel # "+str(channel)+"\n")
             f.write("Total energy cost: "+str(total_energy_cost)+" In volatile : "+str(volatile_energy_cost)+" In non-volatile : "+str(nonvolatile_energy_cost)+"\n")
             f.write("Total memory accesses: "+str(total_memory_accesses)+" In volatile : "+str(volatile_memory_accesses)+" In non-volatile : "+str(nonvolatile_memory_accesses)+"\n")

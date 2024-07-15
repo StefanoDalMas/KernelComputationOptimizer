@@ -1,144 +1,144 @@
 InputFmap #0 Filter #0 fmap #0 Channel # 0
-Total energy cost: 692000 In volatile : 640000 In non-volatile : 52000
-Total memory accesses: 6608 In volatile : 6400 In non-volatile : 208
+Total energy cost: 18250 In volatile : 16000 In non-volatile : 2250
+Total memory accesses: 169 In volatile : 160 In non-volatile : 9
 
 InputFmap #0 Filter #0 fmap #0 Channel # 1
-Total energy cost: 763000 In volatile : 704000 In non-volatile : 59000
-Total memory accesses: 7276 In volatile : 7040 In non-volatile : 236
+Total energy cost: 35500 In volatile : 32000 In non-volatile : 3500
+Total memory accesses: 334 In volatile : 320 In non-volatile : 14
 
 InputFmap #0 Filter #0 fmap #0 Channel # 2
-Total energy cost: 833000 In volatile : 768000 In non-volatile : 65000
-Total memory accesses: 7940 In volatile : 7680 In non-volatile : 260
+Total energy cost: 51750 In volatile : 48000 In non-volatile : 3750
+Total memory accesses: 495 In volatile : 480 In non-volatile : 15
 
 InputFmap #0 Filter #0 fmap #1 Channel # 0
-Total energy cost: 904000 In volatile : 832000 In non-volatile : 72000
-Total memory accesses: 8608 In volatile : 8320 In non-volatile : 288
+Total energy cost: 69000 In volatile : 64000 In non-volatile : 5000
+Total memory accesses: 660 In volatile : 640 In non-volatile : 20
 
 InputFmap #0 Filter #0 fmap #1 Channel # 1
-Total energy cost: 974000 In volatile : 896000 In non-volatile : 78000
-Total memory accesses: 9272 In volatile : 8960 In non-volatile : 312
+Total energy cost: 87250 In volatile : 80000 In non-volatile : 7250
+Total memory accesses: 829 In volatile : 800 In non-volatile : 29
 
 InputFmap #0 Filter #0 fmap #1 Channel # 2
-Total energy cost: 1042000 In volatile : 960000 In non-volatile : 82000
-Total memory accesses: 9928 In volatile : 9600 In non-volatile : 328
+Total energy cost: 105500 In volatile : 96000 In non-volatile : 9500
+Total memory accesses: 998 In volatile : 960 In non-volatile : 38
 
 InputFmap #0 Filter #0 fmap #2 Channel # 0
-Total energy cost: 1110000 In volatile : 1024000 In non-volatile : 86000
-Total memory accesses: 10584 In volatile : 10240 In non-volatile : 344
+Total energy cost: 123750 In volatile : 112000 In non-volatile : 11750
+Total memory accesses: 1167 In volatile : 1120 In non-volatile : 47
 
 InputFmap #0 Filter #0 fmap #2 Channel # 1
-Total energy cost: 1178000 In volatile : 1088000 In non-volatile : 90000
-Total memory accesses: 11240 In volatile : 10880 In non-volatile : 360
+Total energy cost: 142000 In volatile : 128000 In non-volatile : 14000
+Total memory accesses: 1336 In volatile : 1280 In non-volatile : 56
 
 InputFmap #0 Filter #0 fmap #2 Channel # 2
-Total energy cost: 1249000 In volatile : 1152000 In non-volatile : 97000
-Total memory accesses: 11908 In volatile : 11520 In non-volatile : 388
+Total energy cost: 159250 In volatile : 144000 In non-volatile : 15250
+Total memory accesses: 1501 In volatile : 1440 In non-volatile : 61
 
 InputFmap #0 Filter #1 fmap #0 Channel # 0
-Total energy cost: 1318000 In volatile : 1216000 In non-volatile : 102000
-Total memory accesses: 12568 In volatile : 12160 In non-volatile : 408
+Total energy cost: 176500 In volatile : 160000 In non-volatile : 16500
+Total memory accesses: 1666 In volatile : 1600 In non-volatile : 66
 
 InputFmap #0 Filter #1 fmap #0 Channel # 1
-Total energy cost: 1386000 In volatile : 1280000 In non-volatile : 106000
-Total memory accesses: 13224 In volatile : 12800 In non-volatile : 424
+Total energy cost: 193750 In volatile : 176000 In non-volatile : 17750
+Total memory accesses: 1831 In volatile : 1760 In non-volatile : 71
 
 InputFmap #0 Filter #1 fmap #0 Channel # 2
-Total energy cost: 1454000 In volatile : 1344000 In non-volatile : 110000
-Total memory accesses: 13880 In volatile : 13440 In non-volatile : 440
+Total energy cost: 210000 In volatile : 192000 In non-volatile : 18000
+Total memory accesses: 1992 In volatile : 1920 In non-volatile : 72
 
 InputFmap #0 Filter #1 fmap #1 Channel # 0
-Total energy cost: 1523000 In volatile : 1408000 In non-volatile : 115000
-Total memory accesses: 14540 In volatile : 14080 In non-volatile : 460
+Total energy cost: 227250 In volatile : 208000 In non-volatile : 19250
+Total memory accesses: 2157 In volatile : 2080 In non-volatile : 77
 
 InputFmap #0 Filter #1 fmap #1 Channel # 1
-Total energy cost: 1594000 In volatile : 1472000 In non-volatile : 122000
-Total memory accesses: 15208 In volatile : 14720 In non-volatile : 488
+Total energy cost: 244500 In volatile : 224000 In non-volatile : 20500
+Total memory accesses: 2322 In volatile : 2240 In non-volatile : 82
 
 InputFmap #0 Filter #1 fmap #1 Channel # 2
-Total energy cost: 1661000 In volatile : 1536000 In non-volatile : 125000
-Total memory accesses: 15860 In volatile : 15360 In non-volatile : 500
+Total energy cost: 263750 In volatile : 240000 In non-volatile : 23750
+Total memory accesses: 2495 In volatile : 2400 In non-volatile : 95
 
 InputFmap #0 Filter #1 fmap #2 Channel # 0
-Total energy cost: 1730000 In volatile : 1600000 In non-volatile : 130000
-Total memory accesses: 16520 In volatile : 16000 In non-volatile : 520
+Total energy cost: 281000 In volatile : 256000 In non-volatile : 25000
+Total memory accesses: 2660 In volatile : 2560 In non-volatile : 100
 
 InputFmap #0 Filter #1 fmap #2 Channel # 1
-Total energy cost: 1800000 In volatile : 1664000 In non-volatile : 136000
-Total memory accesses: 17184 In volatile : 16640 In non-volatile : 544
+Total energy cost: 298250 In volatile : 272000 In non-volatile : 26250
+Total memory accesses: 2825 In volatile : 2720 In non-volatile : 105
 
 InputFmap #0 Filter #1 fmap #2 Channel # 2
-Total energy cost: 1868000 In volatile : 1728000 In non-volatile : 140000
-Total memory accesses: 17840 In volatile : 17280 In non-volatile : 560
+Total energy cost: 314500 In volatile : 288000 In non-volatile : 26500
+Total memory accesses: 2986 In volatile : 2880 In non-volatile : 106
 
 InputFmap #1 Filter #0 fmap #0 Channel # 0
-Total energy cost: 1935000 In volatile : 1792000 In non-volatile : 143000
-Total memory accesses: 18492 In volatile : 17920 In non-volatile : 572
+Total energy cost: 331750 In volatile : 304000 In non-volatile : 27750
+Total memory accesses: 3151 In volatile : 3040 In non-volatile : 111
 
 InputFmap #1 Filter #0 fmap #0 Channel # 1
-Total energy cost: 2004000 In volatile : 1856000 In non-volatile : 148000
-Total memory accesses: 19152 In volatile : 18560 In non-volatile : 592
+Total energy cost: 350000 In volatile : 320000 In non-volatile : 30000
+Total memory accesses: 3320 In volatile : 3200 In non-volatile : 120
 
 InputFmap #1 Filter #0 fmap #0 Channel # 2
-Total energy cost: 2073000 In volatile : 1920000 In non-volatile : 153000
-Total memory accesses: 19812 In volatile : 19200 In non-volatile : 612
+Total energy cost: 367250 In volatile : 336000 In non-volatile : 31250
+Total memory accesses: 3485 In volatile : 3360 In non-volatile : 125
 
 InputFmap #1 Filter #0 fmap #1 Channel # 0
-Total energy cost: 2144000 In volatile : 1984000 In non-volatile : 160000
-Total memory accesses: 20480 In volatile : 19840 In non-volatile : 640
+Total energy cost: 384500 In volatile : 352000 In non-volatile : 32500
+Total memory accesses: 3650 In volatile : 3520 In non-volatile : 130
 
 InputFmap #1 Filter #0 fmap #1 Channel # 1
-Total energy cost: 2212000 In volatile : 2048000 In non-volatile : 164000
-Total memory accesses: 21136 In volatile : 20480 In non-volatile : 656
+Total energy cost: 401750 In volatile : 368000 In non-volatile : 33750
+Total memory accesses: 3815 In volatile : 3680 In non-volatile : 135
 
 InputFmap #1 Filter #0 fmap #1 Channel # 2
-Total energy cost: 2279000 In volatile : 2112000 In non-volatile : 167000
-Total memory accesses: 21788 In volatile : 21120 In non-volatile : 668
+Total energy cost: 419000 In volatile : 384000 In non-volatile : 35000
+Total memory accesses: 3980 In volatile : 3840 In non-volatile : 140
 
 InputFmap #1 Filter #0 fmap #2 Channel # 0
-Total energy cost: 2349000 In volatile : 2176000 In non-volatile : 173000
-Total memory accesses: 22452 In volatile : 21760 In non-volatile : 692
+Total energy cost: 435250 In volatile : 400000 In non-volatile : 35250
+Total memory accesses: 4141 In volatile : 4000 In non-volatile : 141
 
 InputFmap #1 Filter #0 fmap #2 Channel # 1
-Total energy cost: 2417000 In volatile : 2240000 In non-volatile : 177000
-Total memory accesses: 23108 In volatile : 22400 In non-volatile : 708
+Total energy cost: 451500 In volatile : 416000 In non-volatile : 35500
+Total memory accesses: 4302 In volatile : 4160 In non-volatile : 142
 
 InputFmap #1 Filter #0 fmap #2 Channel # 2
-Total energy cost: 2488000 In volatile : 2304000 In non-volatile : 184000
-Total memory accesses: 23776 In volatile : 23040 In non-volatile : 736
+Total energy cost: 468750 In volatile : 432000 In non-volatile : 36750
+Total memory accesses: 4467 In volatile : 4320 In non-volatile : 147
 
 InputFmap #1 Filter #1 fmap #0 Channel # 0
-Total energy cost: 2557000 In volatile : 2368000 In non-volatile : 189000
-Total memory accesses: 24436 In volatile : 23680 In non-volatile : 756
+Total energy cost: 486000 In volatile : 448000 In non-volatile : 38000
+Total memory accesses: 4632 In volatile : 4480 In non-volatile : 152
 
 InputFmap #1 Filter #1 fmap #0 Channel # 1
-Total energy cost: 2625000 In volatile : 2432000 In non-volatile : 193000
-Total memory accesses: 25092 In volatile : 24320 In non-volatile : 772
+Total energy cost: 503250 In volatile : 464000 In non-volatile : 39250
+Total memory accesses: 4797 In volatile : 4640 In non-volatile : 157
 
 InputFmap #1 Filter #1 fmap #0 Channel # 2
-Total energy cost: 2693000 In volatile : 2496000 In non-volatile : 197000
-Total memory accesses: 25748 In volatile : 24960 In non-volatile : 788
+Total energy cost: 519500 In volatile : 480000 In non-volatile : 39500
+Total memory accesses: 4958 In volatile : 4800 In non-volatile : 158
 
 InputFmap #1 Filter #1 fmap #1 Channel # 0
-Total energy cost: 2762000 In volatile : 2560000 In non-volatile : 202000
-Total memory accesses: 26408 In volatile : 25600 In non-volatile : 808
+Total energy cost: 536750 In volatile : 496000 In non-volatile : 40750
+Total memory accesses: 5123 In volatile : 4960 In non-volatile : 163
 
 InputFmap #1 Filter #1 fmap #1 Channel # 1
-Total energy cost: 2831000 In volatile : 2624000 In non-volatile : 207000
-Total memory accesses: 27068 In volatile : 26240 In non-volatile : 828
+Total energy cost: 554000 In volatile : 512000 In non-volatile : 42000
+Total memory accesses: 5288 In volatile : 5120 In non-volatile : 168
 
 InputFmap #1 Filter #1 fmap #1 Channel # 2
-Total energy cost: 2903000 In volatile : 2688000 In non-volatile : 215000
-Total memory accesses: 27740 In volatile : 26880 In non-volatile : 860
+Total energy cost: 571250 In volatile : 528000 In non-volatile : 43250
+Total memory accesses: 5453 In volatile : 5280 In non-volatile : 173
 
 InputFmap #1 Filter #1 fmap #2 Channel # 0
-Total energy cost: 2970000 In volatile : 2752000 In non-volatile : 218000
-Total memory accesses: 28392 In volatile : 27520 In non-volatile : 872
+Total energy cost: 588500 In volatile : 544000 In non-volatile : 44500
+Total memory accesses: 5618 In volatile : 5440 In non-volatile : 178
 
 InputFmap #1 Filter #1 fmap #2 Channel # 1
-Total energy cost: 3038000 In volatile : 2816000 In non-volatile : 222000
-Total memory accesses: 29048 In volatile : 28160 In non-volatile : 888
+Total energy cost: 606750 In volatile : 560000 In non-volatile : 46750
+Total memory accesses: 5787 In volatile : 5600 In non-volatile : 187
 
 InputFmap #1 Filter #1 fmap #2 Channel # 2
-Total energy cost: 3106000 In volatile : 2880000 In non-volatile : 226000
-Total memory accesses: 29704 In volatile : 28800 In non-volatile : 904
+Total energy cost: 625000 In volatile : 576000 In non-volatile : 49000
+Total memory accesses: 5956 In volatile : 5760 In non-volatile : 196
 
