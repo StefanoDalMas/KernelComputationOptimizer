@@ -222,7 +222,13 @@ class Memory:
             else:
                 self.volatile_allocator.remove(data)
         else:
-            self.nonvolatile_allocator.remove(data)
+            if isinstance(data,np.ndarray):
+                for el in self.nonvolatile_allocator:
+                    if isinstance(el, np.ndarray) and np.array_equal(el, data):
+                        self.nonvolatile_allocator.remove(el)
+                        break  # Break after removing to avoid modifying the list during iteration
+            else:
+                self.nonvolatile_allocator.remove(data)
         self.update_memory_usage(data, adding=False, volatile=volatile)
 
     def check_if_volatile(
@@ -278,12 +284,15 @@ class Memory:
     def get_total_energy_cost(self) -> float:
         return self.get_volatile_energy_cost() + self.get_nonvolatile_energy_cost()
 
-    def power_failure(self) -> None:
+    def power_failure(self, nonVolatile : bool) -> None:
         # Power failure policy : If it happens, save the volatile memory to non-volatile memory and restore it back
-        # generate a random number, if it is less than 0.3, we perform a power failure
-        if np.random.rand() < em.POWER_FAILURE_PROBABILITY:
+        # generate a random number, if it is less than constant, we perform a power failure
+        probability = 0 if nonVolatile else em.POWER_FAILURE_PROBABILITY
+        if np.random.rand() < probability:
             # Create a backup of the volatile allocator
             self.checkpoint()
+            return True
+        return False
 
     def checkpoint(self) -> None:
         backup_volatile_allocator = list(self.volatile_allocator)
@@ -327,6 +336,8 @@ class Memory:
             volatile_biases: bool,
             volatile_output_fmap: bool,
         ) -> None:
+            number_of_iterations : int = 0
+            total_failures : int = 0
             for n in range(ifs.N):
                 for m in range(fs.M):
                     for x in range(P):
@@ -338,10 +349,12 @@ class Memory:
                             )  # Track the memory read operation
                             self.write(volatile=volatile_biases)
                             # Perform the convolution operation
-                            self.power_failure()  # Check for power failure
                             for i in range(fs.R):
                                 for j in range(fs.S):
                                     for k in range(fs.C):
+                                        if (self.power_failure(True)): # we are in Non Volatile memory
+                                            total_failures +=1  # Check for power failure
+                                        number_of_iterations += 1
                                         # Load the input feature map value
                                         input_value = inputFmaps[n].fmap[k][
                                             x * stride + i
@@ -377,7 +390,7 @@ class Memory:
                             self.write(
                                 volatile=volatile_output_fmap
                             )  # Track the memory write operation as store
-
+            # print("Number of iterations: ", number_of_iterations, " Total failures: ", total_failures)
             return outputFmaps
 
         # we have
@@ -437,9 +450,12 @@ class Memory:
         P: int,
         Q: int,
         tiling : bool,
+        all_nonvolatile : bool,
     ) -> None:
         #wipe the content of the file
-        file = "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        file = "data/benchmarks_all_nonvolatile.txt" if all_nonvolatile else "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        if tiling and all_nonvolatile:
+            raise ValueError("You can't have tiling and all nonvolatile at the same time")
         with open(file, "w") as f:
             f.close()
         for n in range(ifs.N):
@@ -459,6 +475,7 @@ class Memory:
                             k,
                             channel,
                             tiling,
+                            all_nonvolatile,
                         )
         # N is the number of input feature maps
         # M is the number of output feature maps
@@ -478,6 +495,7 @@ class Memory:
         k: int,
         channel: int,
         tiling : bool,
+        all_nonvolatile: bool = False,
     ) -> None:
         def monitored_convolution(
             outputFmaps: List[Any],
@@ -491,102 +509,101 @@ class Memory:
             k: int,
             channel: int,
             tiling : bool,
+            all_nonvolatile: bool,
         ) -> None:
+            # I state where all variables reside
+            all_volatile : bool = not all_nonvolatile
             if not tiling :
                 # Bring the filter and corresponding input fmap into volatile memory
-                self.alloc(filters[m].kernel[k], volatile=True) # number of : is fs.M - 1
-                self.alloc(inputFmaps[n].fmap[k], volatile=True)
+                self.alloc(filters[m].kernel[k], volatile=all_volatile) # number of : is fs.M - 1
+                self.alloc(inputFmaps[n].fmap[k], volatile=all_volatile)
 
                 for x in range(P):
                     for y in range(Q):
                         output_value = biases[m]
-                        self.read(volatile=True)
-                        self.write(volatile=True)
-
-                        self.power_failure()
+                        self.read(volatile=all_volatile)
+                        self.write(volatile=all_volatile)
 
                         for i in range(fs.R):
                             for j in range(fs.S):
+                                self.power_failure(all_nonvolatile) # if it is true I cannot have power failure
                                 # Load the input feature map value
                                 input_value = inputFmaps[n].fmap[k][x * stride + i][
                                     y * stride + j
                                 ]
-                                self.read(volatile=True)
+                                self.read(volatile=all_volatile)
 
                                 # Load the filter kernel value
                                 filter_value = filters[m].kernel[k][i][j]
-                                self.read(volatile=True)
+                                self.read(volatile=all_volatile)
 
                                 # Multiply input and filter values
                                 product = input_value * filter_value
 
                                 # Accumulate the result
                                 output_value += product
-                                self.read(volatile=True)
-                                self.write(volatile=True)
+                                self.read(volatile=all_volatile)
+                                self.write(volatile=all_volatile)
 
                         # Apply activation function (ReLU)
-                        self.read(volatile=True)
+                        self.read(volatile=all_volatile)
                         if output_value < 0:
                             output_value = 0
                         outputFmaps[n][m][x][y] = output_value
-                        self.write(volatile=True)
+                        self.write(volatile=all_volatile)
 
                 # Save the output fmap in non-volatile memory
-                self.write(volatile=False)
+                self.write(volatile=all_volatile)
 
                 # Free the filter and input fmap from volatile memory
-                self.free(filters[m].kernel[k], volatile=True)
-                self.free(inputFmaps[n].fmap[k], volatile=True)
+                self.free(filters[m].kernel[k], volatile=all_volatile)
+                self.free(inputFmaps[n].fmap[k], volatile=all_volatile)
 
                 return outputFmaps
             else:
-                print("Tiling being implemented!")
                 tiles = inputFmaps[n].perform_tiling(4, 3, channel)
-                print("here")
+                print("tiling!")
                 # now we convolve 1 tile with the kernel and save to outputFmaps
                 for tile in tiles:
-                    self.alloc(filters[m].kernel[k], volatile=True)
-                    self.alloc(tile, volatile=True)
+                    self.alloc(filters[m].kernel[k], volatile=all_volatile)
+                    self.alloc(tile, volatile=all_volatile)
                     for x in range(P):
                         for y in range(Q):
                             output_value = biases[m]
-                            self.read(volatile=True)
-                            self.write(volatile=True)
-
-                            self.power_failure()
-
+                            self.read(volatile=all_volatile)
+                            self.write(volatile=all_volatile)
                             for i in range(fs.R):
                                 for j in range(fs.S):
+                                    self.power_failure(all_nonvolatile)
                                     # Load the input feature map value
                                     input_value = tile.fmap[i][j]
-                                    self.read(volatile=True)
+                                    self.read(volatile=all_volatile)
 
                                     # Load the filter kernel value
                                     filter_value = filters[m].kernel[k][i][j]
-                                    self.read(volatile=True)
+                                    self.read(volatile=all_volatile)
 
                                     # Multiply input and filter values
                                     product = input_value * filter_value
 
                                     # Accumulate the result
                                     output_value += product
-                                    self.read(volatile=True)
-                                    self.write(volatile=True)
+                                    self.read(volatile=all_volatile)
+                                    self.write(volatile=all_volatile)
 
                             # Apply activation function (ReLU)
-                            self.read(volatile=True)
+                            self.read(volatile=all_volatile)
                             if output_value < 0:
                                 output_value = 0
                             outputFmaps[n][m][x][y] = output_value
-                            self.write(volatile=True)
-                    self.free(filters[m].kernel[k], volatile=True)
-                    self.free(tile, volatile=True)
+                            self.write(volatile=all_volatile)
+                    self.free(filters[m].kernel[k], volatile=all_volatile)
+                    self.free(tile, volatile=all_volatile)
                 return outputFmaps
 
 
         result = monitored_convolution(
-            outputFmaps, inputFmaps, filters, biases, P, Q, n, m, k, channel, tiling
+            outputFmaps, inputFmaps, filters, biases, P, Q, n, m, k, channel, tiling, all_nonvolatile,
         )
 
         volatile_energy_cost = self.get_volatile_energy_cost()
@@ -597,7 +614,7 @@ class Memory:
         total_memory_accesses = self.get_total_memory_accesses()
         
 
-        file = "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        file = "data/benchmarks_all_nonvolatile.txt" if all_nonvolatile else "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
         with open(file, "a") as f:
             f.write("InputFmap #"+str(inputFmaps[n].id)+" Filter #"+str(filters[m].id)+" fmap #"+str(k)+" Channel # "+str(channel)+"\n")
             f.write("Total energy cost: "+str(total_energy_cost)+" In volatile : "+str(volatile_energy_cost)+" In non-volatile : "+str(nonvolatile_energy_cost)+"\n")

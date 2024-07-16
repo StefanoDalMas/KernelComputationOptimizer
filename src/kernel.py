@@ -75,51 +75,30 @@ for n in range(ofs.N):
 
 # testing loading into Volatile Memory
 memory = Memory()
-# outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+
+# this one is used to check if power failure works correctly and some other stuff
 # memory.alloc(filters, volatile=True)
 # memory.alloc(biases, volatile=True)
 # memory.alloc(inputFmaps, volatile=True)
-# memory.alloc(outputFmaps, volatile = True) # not necessary to state true, it is hardcoded in the monitorConvolution function!!!!
+# memory.alloc(outputFmaps, volatile = True)
 
-# # # Testing Nonvolatile Memory costs
+
+
 # memory.monitor_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
 
-# # Print output feature maps
-# for n in range(ofs.N):
-#     for m in range(fs.M):
-#         print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
-#         for i in range(P):
-#             row = " ".join(
-#                 f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
-#             )
-#             print(row)
+memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = False,all_nonvolatile=True)
 
 
+memory = Memory()
+print("Convolution Volatile NO TILING")
 outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = False)
-
-# Print output feature maps
-for n in range(ofs.N):
-    for m in range(fs.M):
-        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
-        for i in range(P):
-            row = " ".join(
-                f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
-            )
-            print(row)
+memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = False,all_nonvolatile=False)
 
 
 
-
+memory = Memory()
+print("Convolution Volatile TILING")
 outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = True)
+memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = True,all_nonvolatile=False)
 
-# Print output feature maps
-for n in range(ofs.N):
-    for m in range(fs.M):
-        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
-        for i in range(P):
-            row = " ".join(
-                f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
-            )
-            print(row)

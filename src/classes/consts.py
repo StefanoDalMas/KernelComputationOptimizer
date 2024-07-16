@@ -25,15 +25,15 @@ U: int = 3
 
 class MemoryModel:
     VOLATILE_MEMORY_SIZE: int = 8 * 1024 # 8KB
-    VOLATILE_READ: float = 100
-    VOLATILE_WRITE: float = 100
+    VOLATILE_READ: float = 1.0
+    VOLATILE_WRITE: float = 1.0 # pJ/bit
     NONVOLATILE_MEMORY_SIZE: int = 256 * 1024 # 256KB
-    NONVOLATILE_READ: float = 250
-    NONVOLATILE_WRITE: float = 250
+    NONVOLATILE_READ: float = 100.0
+    NONVOLATILE_WRITE: float = 150.0
 
 class UnitModel:
     SIZE_OF_INT: int = 4
     SIZE_OF_FLOAT: int = 8
 
 class EnergyModel:
-    POWER_FAILURE_PROBABILITY : int = 0.3
+    POWER_FAILURE_PROBABILITY : int = 0.1
