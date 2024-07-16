@@ -13,6 +13,7 @@ from collections import defaultdict
 from tools.convolution import convolution, flattened_convolution
 from tools.generate_data import generate_data
 from tools.data_loader import data_loader
+from tools.benchmarkParser import main as benchmark_main
 
 
 # uncomment this one to generate new json files
@@ -84,21 +85,29 @@ outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
 # memory.alloc(outputFmaps, volatile = True)
 
 
-
 # memory.monitor_convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
 
-memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = False,all_nonvolatile=True)
+memory.perform_all_convolutions(
+    outputFmaps, inputFmaps, filters, biases, P, Q, tiling=False, all_nonvolatile=True
+)
 
 
 memory = Memory()
 print("Convolution Volatile NO TILING")
 outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = False,all_nonvolatile=False)
-
+memory.perform_all_convolutions(
+    outputFmaps, inputFmaps, filters, biases, P, Q, tiling=False, all_nonvolatile=False
+)
 
 
 memory = Memory()
 print("Convolution Volatile TILING")
 outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.perform_all_convolutions(outputFmaps, inputFmaps, filters, biases, P, Q, tiling = True,all_nonvolatile=False)
+memory.perform_all_convolutions(
+    outputFmaps, inputFmaps, filters, biases, P, Q, tiling=True, all_nonvolatile=False
+)
 
+
+benchmark_main("data/benchmarks.txt", "data/benchmarks_diff.csv")
+benchmark_main("data/benchmarks_tiling.txt", "data/benchmarks_diff_tiling.csv")
+benchmark_main("data/benchmarks_all_nonvolatile.txt", "data/benchmarks_diff_all_nonvolatile.csv")

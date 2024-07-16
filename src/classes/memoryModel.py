@@ -214,7 +214,7 @@ class Memory:
         volatile: bool = False,
     ) -> None:
         if volatile:
-            if isinstance(data,np.ndarray):
+            if isinstance(data, np.ndarray):
                 for el in self.volatile_allocator:
                     if isinstance(el, np.ndarray) and np.array_equal(el, data):
                         self.volatile_allocator.remove(el)
@@ -222,7 +222,7 @@ class Memory:
             else:
                 self.volatile_allocator.remove(data)
         else:
-            if isinstance(data,np.ndarray):
+            if isinstance(data, np.ndarray):
                 for el in self.nonvolatile_allocator:
                     if isinstance(el, np.ndarray) and np.array_equal(el, data):
                         self.nonvolatile_allocator.remove(el)
@@ -284,7 +284,7 @@ class Memory:
     def get_total_energy_cost(self) -> float:
         return self.get_volatile_energy_cost() + self.get_nonvolatile_energy_cost()
 
-    def power_failure(self, nonVolatile : bool) -> None:
+    def power_failure(self, nonVolatile: bool) -> None:
         # Power failure policy : If it happens, save the volatile memory to non-volatile memory and restore it back
         # generate a random number, if it is less than constant, we perform a power failure
         probability = 0 if nonVolatile else em.POWER_FAILURE_PROBABILITY
@@ -336,8 +336,8 @@ class Memory:
             volatile_biases: bool,
             volatile_output_fmap: bool,
         ) -> None:
-            number_of_iterations : int = 0
-            total_failures : int = 0
+            number_of_iterations: int = 0
+            total_failures: int = 0
             for n in range(ifs.N):
                 for m in range(fs.M):
                     for x in range(P):
@@ -352,8 +352,12 @@ class Memory:
                             for i in range(fs.R):
                                 for j in range(fs.S):
                                     for k in range(fs.C):
-                                        if (self.power_failure(True)): # we are in Non Volatile memory
-                                            total_failures +=1  # Check for power failure
+                                        if self.power_failure(
+                                            True
+                                        ):  # we are in Non Volatile memory
+                                            total_failures += (
+                                                1  # Check for power failure
+                                            )
                                         number_of_iterations += 1
                                         # Load the input feature map value
                                         input_value = inputFmaps[n].fmap[k][
@@ -449,13 +453,19 @@ class Memory:
         biases: Dict[int, float],
         P: int,
         Q: int,
-        tiling : bool,
-        all_nonvolatile : bool,
+        tiling: bool,
+        all_nonvolatile: bool,
     ) -> None:
-        #wipe the content of the file
-        file = "data/benchmarks_all_nonvolatile.txt" if all_nonvolatile else "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        # wipe the content of the file
+        file = (
+            "data/benchmarks_all_nonvolatile.txt"
+            if all_nonvolatile
+            else "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        )
         if tiling and all_nonvolatile:
-            raise ValueError("You can't have tiling and all nonvolatile at the same time")
+            raise ValueError(
+                "You can't have tiling and all nonvolatile at the same time"
+            )
         with open(file, "w") as f:
             f.close()
         for n in range(ifs.N):
@@ -494,7 +504,7 @@ class Memory:
         m: int,
         k: int,
         channel: int,
-        tiling : bool,
+        tiling: bool,
         all_nonvolatile: bool = False,
     ) -> None:
         def monitored_convolution(
@@ -508,14 +518,16 @@ class Memory:
             m: int,
             k: int,
             channel: int,
-            tiling : bool,
+            tiling: bool,
             all_nonvolatile: bool,
         ) -> None:
             # I state where all variables reside
-            all_volatile : bool = not all_nonvolatile
-            if not tiling :
+            all_volatile: bool = not all_nonvolatile
+            if not tiling:
                 # Bring the filter and corresponding input fmap into volatile memory
-                self.alloc(filters[m].kernel[k], volatile=all_volatile) # number of : is fs.M - 1
+                self.alloc(
+                    filters[m].kernel[k], volatile=all_volatile
+                )  # number of : is fs.M - 1
                 self.alloc(inputFmaps[n].fmap[k], volatile=all_volatile)
 
                 for x in range(P):
@@ -526,7 +538,9 @@ class Memory:
 
                         for i in range(fs.R):
                             for j in range(fs.S):
-                                self.power_failure(all_nonvolatile) # if it is true I cannot have power failure
+                                self.power_failure(
+                                    all_nonvolatile
+                                )  # if it is true I cannot have power failure
                                 # Load the input feature map value
                                 input_value = inputFmaps[n].fmap[k][x * stride + i][
                                     y * stride + j
@@ -601,9 +615,19 @@ class Memory:
                     self.free(tile, volatile=all_volatile)
                 return outputFmaps
 
-
         result = monitored_convolution(
-            outputFmaps, inputFmaps, filters, biases, P, Q, n, m, k, channel, tiling, all_nonvolatile,
+            outputFmaps,
+            inputFmaps,
+            filters,
+            biases,
+            P,
+            Q,
+            n,
+            m,
+            k,
+            channel,
+            tiling,
+            all_nonvolatile,
         )
 
         volatile_energy_cost = self.get_volatile_energy_cost()
@@ -612,16 +636,47 @@ class Memory:
         nonvolatile_memory_accesses = self.get_nonvolatile_memory_accesses()
         total_energy_cost = self.get_total_energy_cost()
         total_memory_accesses = self.get_total_memory_accesses()
-        
 
-        file = "data/benchmarks_all_nonvolatile.txt" if all_nonvolatile else "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        file = (
+            "data/benchmarks_all_nonvolatile.txt"
+            if all_nonvolatile
+            else "data/benchmarks.txt" if not tiling else "data/benchmarks_tiling.txt"
+        )
         with open(file, "a") as f:
-            f.write("InputFmap #"+str(inputFmaps[n].id)+" Filter #"+str(filters[m].id)+" fmap #"+str(k)+" Channel # "+str(channel)+"\n")
-            f.write("Total energy cost: "+str(total_energy_cost)+" In volatile : "+str(volatile_energy_cost)+" In non-volatile : "+str(nonvolatile_energy_cost)+"\n")
-            f.write("Total memory accesses: "+str(total_memory_accesses)+" In volatile : "+str(volatile_memory_accesses)+" In non-volatile : "+str(nonvolatile_memory_accesses)+"\n")
+            f.write(
+                "InputFmap #"
+                + str(inputFmaps[n].id)
+                + " Filter #"
+                + str(filters[m].id)
+                + " fmap #"
+                + str(k)
+                + " Channel # "
+                + str(channel)
+                + "\n"
+            )
+            f.write(
+                "Total energy cost: "
+                + str(total_energy_cost)
+                + " In volatile : "
+                + str(volatile_energy_cost)
+                + " In non-volatile : "
+                + str(nonvolatile_energy_cost)
+                + "\n"
+            )
+            f.write(
+                "Total memory accesses: "
+                + str(total_memory_accesses)
+                + " In volatile : "
+                + str(volatile_memory_accesses)
+                + " In non-volatile : "
+                + str(nonvolatile_memory_accesses)
+                + "\n"
+            )
             f.write("\n")
 
-        print("InputFmap #",inputFmaps[n].id," Filter #", filters[m].id," Channel #",k)
+        print(
+            "InputFmap #", inputFmaps[n].id, " Filter #", filters[m].id, " Channel #", k
+        )
         print(
             "Total energy cost: ",
             total_energy_cost,
