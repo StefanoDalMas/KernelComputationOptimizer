@@ -1,6 +1,8 @@
 
 import csv
+import pandas as pd
 import re
+import os
 
 # Function to parse the text file and extract relevant data
 def parse_benchmarks(file_path):
@@ -72,6 +74,9 @@ def main(file_path : str,output_file_path : str):
     
     parsed_data = parse_benchmarks(input_file_path)
     compute_differences_and_save(parsed_data, output_file_path)
+    df = pd.read_csv(output_file_path)
+    df.to_excel(output_file_path.replace(".csv", ".xlsx"), index=False)
+    os.remove(output_file_path)
     print(f"Differences computed and saved to {output_file_path}")
 
 if __name__ == "__main__":

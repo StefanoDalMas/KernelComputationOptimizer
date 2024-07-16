@@ -1,26 +1,26 @@
 class FilterSize:
     M: int = 2
     C: int = 3
-    R: int = 3
-    S: int = 3
+    R: int = 2
+    S: int = 2
 
 
 class InputFmapSize:
     N: int = 2
     C: int = 3
-    H: int = 6
-    W: int = 6
+    H: int = 32
+    W: int = 32
 
 
 class OutputFmapSize:
     N: int = 2
     M: int = 3
-    P: int = 3
-    Q: int = 3
+    P: int = 14
+    Q: int = 14
 
 
 # U is the stride
-U: int = 3
+U: int = 2
 
 # obtained by estimating 3.0V, 25C, 0.5mA for SRAM and 1.5mA Read / 2.0mA Write for FRAM
 
@@ -40,4 +40,4 @@ class UnitModel:
 
 
 class EnergyModel:
-    POWER_FAILURE_PROBABILITY: int = 0.1
+    POWER_FAILURE_PROBABILITY: int = 0

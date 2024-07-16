@@ -567,7 +567,7 @@ class Memory:
                         self.write(volatile=all_volatile)
 
                 # Save the output fmap in non-volatile memory
-                self.write(volatile=all_volatile)
+                self.write(volatile=False)
 
                 # Free the filter and input fmap from volatile memory
                 self.free(filters[m].kernel[k], volatile=all_volatile)
@@ -611,6 +611,8 @@ class Memory:
                                 output_value = 0
                             outputFmaps[n][m][x][y] = output_value
                             self.write(volatile=all_volatile)
+                    # save the output fmap in non-volatile memory
+                        self.write(volatile=False)
                     self.free(filters[m].kernel[k], volatile=all_volatile)
                     self.free(tile, volatile=all_volatile)
                 return outputFmaps

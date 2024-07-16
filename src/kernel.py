@@ -1,5 +1,6 @@
 from typing import List, Any, Dict
 import numpy as np
+import pandas as pd
 from classes.InputFeatureMap import InputFeatureMap
 from classes.memoryModel import Memory
 from classes.filter import Filter
@@ -17,7 +18,7 @@ from tools.benchmarkParser import main as benchmark_main
 
 
 # uncomment this one to generate new json files
-# generate_data()
+generate_data()
 
 inputFmaps: List[InputFeatureMap] = []
 biases: Dict[int, float] = defaultdict(float)
@@ -92,12 +93,12 @@ memory.perform_all_convolutions(
 )
 
 
-memory = Memory()
-print("Convolution Volatile NO TILING")
-outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
-memory.perform_all_convolutions(
-    outputFmaps, inputFmaps, filters, biases, P, Q, tiling=False, all_nonvolatile=False
-)
+# memory = Memory()
+# print("Convolution Volatile NO TILING")
+# outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+# memory.perform_all_convolutions(
+#     outputFmaps, inputFmaps, filters, biases, P, Q, tiling=False, all_nonvolatile=False
+# )
 
 
 memory = Memory()
@@ -108,6 +109,6 @@ memory.perform_all_convolutions(
 )
 
 
-benchmark_main("data/benchmarks.txt", "data/benchmarks_diff.csv")
+# benchmark_main("data/benchmarks.txt", "data/benchmarks_diff.csv")
 benchmark_main("data/benchmarks_tiling.txt", "data/benchmarks_diff_tiling.csv")
 benchmark_main("data/benchmarks_all_nonvolatile.txt", "data/benchmarks_diff_all_nonvolatile.csv")
