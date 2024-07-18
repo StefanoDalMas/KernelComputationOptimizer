@@ -1,4 +1,3 @@
-
 import csv
 import pandas as pd
 import re
@@ -52,6 +51,20 @@ def compute_differences_and_save(parsed_data, output_file):
 
         differences.append(diff)
 
+    # Compute averages
+    avg_diff = {
+        "fmap_info": "Average",
+        "total_energy_cost_diff": sum(d["total_energy_cost_diff"] for d in differences) / len(differences),
+        "volatile_energy_diff": sum(d["volatile_energy_diff"] for d in differences) / len(differences),
+        "non_volatile_energy_diff": sum(d["non_volatile_energy_diff"] for d in differences) / len(differences),
+        "total_memory_accesses_diff": sum(d["total_memory_accesses_diff"] for d in differences) / len(differences),
+        "volatile_accesses_diff": sum(d["volatile_accesses_diff"] for d in differences) / len(differences),
+        "non_volatile_accesses_diff": sum(d["non_volatile_accesses_diff"] for d in differences) / len(differences)
+    }
+
+    differences.append(avg_diff)
+
+    # Save to CSV
     with open(output_file, 'w', newline='') as csvfile:
         fieldnames = [
             "fmap_info",
@@ -69,15 +82,15 @@ def compute_differences_and_save(parsed_data, output_file):
             writer.writerow(diff)
 
 # Main function to execute the script
-def main(file_path : str,output_file_path : str):
-    input_file_path = file_path
-    
-    parsed_data = parse_benchmarks(input_file_path)
+def main(file_path: str, output_file_path: str):
+    parsed_data = parse_benchmarks(file_path)
     compute_differences_and_save(parsed_data, output_file_path)
     df = pd.read_csv(output_file_path)
     df.to_excel(output_file_path.replace(".csv", ".xlsx"), index=False)
     os.remove(output_file_path)
-    print(f"Differences computed and saved to {output_file_path}")
+    print(f"Differences computed and saved to {output_file_path.replace('.csv', '.xlsx')}")
 
 if __name__ == "__main__":
-    main()
+    file_path = "input.txt"  # Replace with your input file path
+    output_file_path = "output.csv"  # Replace with your desired output file path
+    main(file_path, output_file_path)

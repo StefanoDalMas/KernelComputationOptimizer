@@ -302,6 +302,7 @@ class Memory:
 
         # Write the backup data to non-volatile memory and then read it back
         for data in backup_volatile_allocator:
+            self.read(volatile=True)  # Reading from volatile memory the value that I have to save
             self.write(volatile=False)  # Writing to non-volatile memory
             self.read(volatile=False)  # Reading from non-volatile memory
 

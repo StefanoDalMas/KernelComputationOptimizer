@@ -1,5 +1,7 @@
 from typing import List, Any, Dict
 import numpy as np
+import os
+import shutil
 import pandas as pd
 from classes.InputFeatureMap import InputFeatureMap
 from classes.memoryModel import Memory
@@ -9,12 +11,14 @@ from classes.consts import (
     InputFmapSize as ifs,
     OutputFmapSize as ofs,
     U as stride,
+    EnergyModel as em,
 )
 from collections import defaultdict
 from tools.convolution import convolution, flattened_convolution
 from tools.generate_data import generate_data
 from tools.data_loader import data_loader
 from tools.benchmarkParser import main as benchmark_main
+
 
 
 # uncomment this one to generate new json files
@@ -38,41 +42,41 @@ for m in range(fs.M):
 # now we need to perform the convolution, we need the sizes P and Q
 P = (ifs.H - fs.R) // stride + 1
 Q = (ifs.W - fs.S) // stride + 1
-outputFmaps: List[Any] = []
-# initialize the output fmaps with zeroes using np.zeros
-for n in range(ifs.N):
-    outputFmaps.append(np.zeros((fs.M, P, Q)))
+# outputFmaps: List[Any] = []
+# # initialize the output fmaps with zeroes using np.zeros
+# for n in range(ifs.N):
+#     outputFmaps.append(np.zeros((fs.M, P, Q)))
 
-outputFmaps = convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
+# outputFmaps = convolution(outputFmaps, inputFmaps, filters, biases, P, Q)
 
-# Print output feature maps
-for n in range(ofs.N):
-    for m in range(fs.M):
-        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
-        for i in range(P):
-            row = " ".join(f"{outputFmaps[n][m][i][j]:.2f}" for j in range(Q))
-            print(row)
+# # Print output feature maps
+# for n in range(ofs.N):
+#     for m in range(fs.M):
+#         print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
+#         for i in range(P):
+#             row = " ".join(f"{outputFmaps[n][m][i][j]:.2f}" for j in range(Q))
+#             print(row)
 
 
-# now we try with the flattened filters and input fmaps
-flattened_filters = np.array([filter.kernel.flatten() for filter in filters.values()])
-flattened_input_fmaps = np.array([inputFmap.fmap.flatten() for inputFmap in inputFmaps])
+# # now we try with the flattened filters and input fmaps
+# flattened_filters = np.array([filter.kernel.flatten() for filter in filters.values()])
+# flattened_input_fmaps = np.array([inputFmap.fmap.flatten() for inputFmap in inputFmaps])
 
-outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
+# outputFmaps = np.zeros((ifs.N, fs.M, P, Q))
 
-outputFmapsWithFlattened = flattened_convolution(
-    outputFmaps, flattened_input_fmaps, flattened_filters, biases, P, Q
-)
+# outputFmapsWithFlattened = flattened_convolution(
+#     outputFmaps, flattened_input_fmaps, flattened_filters, biases, P, Q
+# )
 
-# Print output feature maps
-for n in range(ofs.N):
-    for m in range(fs.M):
-        print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
-        for i in range(P):
-            row = " ".join(
-                f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
-            )
-            print(row)
+# # Print output feature maps
+# for n in range(ofs.N):
+#     for m in range(fs.M):
+#         print(f"Output Feature Map {n + 1}, Channel {m + 1}:")
+#         for i in range(P):
+#             row = " ".join(
+#                 f"{outputFmapsWithFlattened[n][m][i][j]:.2f}" for j in range(Q)
+#             )
+#             print(row)
 
 
 # testing loading into Volatile Memory
@@ -111,4 +115,25 @@ memory.perform_all_convolutions(
 
 # benchmark_main("data/benchmarks.txt", "data/benchmarks_diff.csv")
 benchmark_main("data/benchmarks_tiling.txt", "data/benchmarks_diff_tiling.csv")
-benchmark_main("data/benchmarks_all_nonvolatile.txt", "data/benchmarks_diff_all_nonvolatile.csv")
+benchmark_main(
+    "data/benchmarks_all_nonvolatile.txt", "data/benchmarks_diff_all_nonvolatile.csv"
+)
+
+# move all .xslx files in data to a subfolder called like "ifs.H x ifs.W"
+
+
+if not os.path.exists("data/tests"):
+    os.makedirs("data/tests")
+
+probability = int(em.POWER_FAILURE_PROBABILITY * 100)
+if not os.path.exists("data/tests/{ifs.H}x{ifs.W}_{fs.R}x{fs.R}_{probability}"):
+    os.makedirs(f"data/tests/{ifs.H}x{ifs.W}_{fs.R}x{fs.R}_{probability}")
+
+
+for file in os.listdir("data"):
+    if file.endswith(".xlsx"):
+        shutil.move(f"data/{file}", f"data/tests/{ifs.H}x{ifs.W}_{fs.R}x{fs.R}_{probability}/{file}")
+
+# os.remove("data/benchmarks.txt")
+os.remove("data/benchmarks_tiling.txt")
+os.remove("data/benchmarks_all_nonvolatile.txt")

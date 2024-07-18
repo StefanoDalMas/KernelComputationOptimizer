@@ -34,10 +34,17 @@ class MemoryModel:
     NONVOLATILE_WRITE: float = 375  # pJ/bit
 
 
+# the overall cost should be
+
+# volatile_read_cost = (2 + 3 * fs.R * fs.S) * P * Q * 90
+# volatile_write_cost = (2 + 1 * fs.R * fs.S) * P * Q * 93.75
+# nonvolatile_write_cost = P * Q * 375
+
+
 class UnitModel:
     SIZE_OF_INT: int = 4
     SIZE_OF_FLOAT: int = 8
 
 
 class EnergyModel:
-    POWER_FAILURE_PROBABILITY: int = 0
+    POWER_FAILURE_PROBABILITY: float = 0.5
